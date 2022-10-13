@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: energi3
+spec:
+  serviceName: "energi3"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: energi3
+  template:
+    metadata:
+      labels:
+        app: energi3
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: energi3
+          image: 558659058402.dkr.ecr.ap-northeast-1.amazonaws.com/utils:energi3-test
+          imagePullPolicy: Always
+          terminationMessagePath: "/tmp/termination-log"
+          command: ["/bin/sh"]
+          args: ["-c", "$HOME/energi3/bin/energi3 --datadir $HOME/.energicore3 --gcmode archive --maxpeers 128 --masternode --nousb --mine=1 --nat extip:$(curl -s https://ifconfig.me/) --verbosity 0"]
+          ports:
+            - containerPort: 39797
+              name: master
+          volumeMounts:
+            - name: data
+              mountPath: /home/nrgstaker/.energicore3
+          resources:
+            limits:
+              cpu: "1"
+              memory: 4Gi
+            requests:
+              cpu: "500m"
+              memory: 2Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
