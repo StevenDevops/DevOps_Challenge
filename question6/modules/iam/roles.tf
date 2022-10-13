@@ -1,7 +1,7 @@
 resource "aws_iam_role" "iam_role" {
   name                  = format("%s-role", var.env)
   path                  = "/"
-  description           = "Provides access to kubernetes operations users."
+  description           = format("This is %s-role", var.env)
   force_detach_policies = false
   tags                  = local.tag
 
