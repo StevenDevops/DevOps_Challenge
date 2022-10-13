@@ -19,7 +19,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: energi3
-          image: 558659058402.dkr.ecr.ap-northeast-1.amazonaws.com/utils:energi3-test
+          image: <your-energi3-ecr-url>
           imagePullPolicy: Always
           terminationMessagePath: "/tmp/termination-log"
           command: ["/bin/sh"]

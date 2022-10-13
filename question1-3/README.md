@@ -100,8 +100,18 @@ No critical and high risk. I think we are good now.
 ![img-2.png](images/ecr-scan-2.png)
 
 ### K8s deployment:
-Resource limit:
+Login to AWS Ecr
+```
+aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <your-aws-account-id>.dkr.ecr.<your-region>.amazonaws.com
+```
+Push energi3 to ECR
+```
+docker tag energi3-client-node <your-energi3-ecr-url>
+docker push <your-energi3-ecr-url>
+```
+Replace your energicore3 docker images url [here](https://github.com/StevenDevops/DevOps_Challenge/blob/main/question1-3/k8s.yaml#L22)
 
+Resource limit:
 ```
 limits:
   cpu: "1"
@@ -116,7 +126,7 @@ requests:
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/nvme3n1    9.7G  150M  9.6G   2% /home/nrgstaker/.energicore3
 ```
-
 ### Jenkins file
+Simple K8s deployment:
 
-
+_Clone repository -> Docker build -> Push to ECR -> Kubectl apply -> Kubectl rollout restart_

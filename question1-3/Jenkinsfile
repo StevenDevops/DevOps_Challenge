@@ -1,0 +1,96 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml '''
+spec:
+  serviceAccountName: jenkins-agent
+  containers:
+  - name: k8s
+    image: xxx.dkr.ecr.ap-northeast-1.amazonaws.com/utils #The build images which had kubectl command
+    command:
+      - cat
+    tty: true
+    env:
+    - name: AWS_CONFIG_FILE
+      value: /home/jenkins/tmp/config
+    volumeMounts:
+    - name: aws-auth
+      mountPath: /home/jenkins/tmp/
+  - name: docker-build
+    image: gcr.io/kaniko-project/executor:v1.3.0-debug
+    command:
+      - /busybox/cat
+    tty: true
+    resources:
+      requests:
+        memory: "7000Mi"
+        cpu: "7000m"
+      limits:
+        memory: "7000Mi"
+        cpu: "8000m"
+  volumes:
+    - name: aws-auth
+      configMap:
+        name: aws-auth
+
+  tolerations:
+    - effect: NoSchedule
+      key: type
+      operator: Equal
+      value: build
+  nodeSelector:
+    type: build
+'''
+    }
+  }
+
+  environment {
+    BUILD_TAG = "2.0.${BUILD_NUMBER}"
+    CONTAINER_REPO = 'xxx.dkr.ecr.ap-northeast-1.amazonaws.com'
+    PROFILE = "utilities"
+    CLUSTER = "utilities"
+    REGION = "ap-northeast-1"
+  }
+
+  stages {
+    stage('Checkout Markets Frontend') {
+      steps {
+        container('k8s') {
+            git url:'https://github.com/StevenDevops/home_work.git',
+                branch:'${BRANCH_NAME}',
+                credentialsId: 'github-app-portal'
+        }
+      }
+    }
+
+    stage ('Building Images') {
+      steps {
+        container('docker-build') {
+          script {
+            sh """
+              /kaniko/executor \
+              --single-snapshot \
+              --snapshotMode time \
+              --log-format text \
+              --context "\$(pwd)" \
+              --dockerfile "\$(pwd)/Dockerfile" \
+              --destination ${CONTAINER_REPO}/energi3:latest
+            """
+          }
+        }
+      }
+    }
+
+    stage('Deploying images') {
+      steps {
+        container('k8s') {
+          script {
+            sh "aws eks --profile ${profile} --region ${region} update-kubeconfig --name ${cluster}"
+            sh "kubectl apply k8s.yaml --namespace energi3"
+            sh "kubectl rollout restart deployment/energi3 --namespace energi3"
+          }
+        }
+      }
+    }
+  }
+}
