@@ -1,8 +1,10 @@
-#Question 6
+# Question 6
 
-_Noted: It's not good to share the permission for all user in the same account. E.g test-user can assume the prod-role so I decided to separate the permission for them. Only root account have permission to assume all roles._
+_Noted: It's not good to share the permission for all user in the same account._
 
-#How to run it
+E.g: Test-user can assume the prod-role so I decided to separate the permission for them. Only root account have permission to assume all roles._
+
+# How to run it
 Please install [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) first.
 
 Please copy your AWS credentials to ~/.aws/credentials (default profile)
@@ -105,9 +107,9 @@ Terraform will perform the following actions:
                       + Effect    = "Allow"
                       + Principal = {
                           + AWS = [
-                              + "arn:aws:iam::854911248207:user/prod-user-1",
-                              + "arn:aws:iam::854911248207:user/prod-user-2",
-                              + "arn:aws:iam::854911248207:root",
+                              + "arn:aws:iam::xxxxxxxxxx:user/prod-user-1",
+                              + "arn:aws:iam::xxxxxxxxxx:user/prod-user-2",
+                              + "arn:aws:iam::xxxxxxxxxx:root",
                             ]
                         }
                     },
@@ -262,9 +264,9 @@ Terraform will perform the following actions:
                       + Effect    = "Allow"
                       + Principal = {
                           + AWS = [
-                              + "arn:aws:iam::854911248207:user/test-user-1",
-                              + "arn:aws:iam::854911248207:user/test-user-2",
-                              + "arn:aws:iam::854911248207:root",
+                              + "arn:aws:iam::xxxxxxxxxx:user/test-user-1",
+                              + "arn:aws:iam::xxxxxxxxxx:user/test-user-2",
+                              + "arn:aws:iam::xxxxxxxxxx:root",
                             ]
                         }
                     },
